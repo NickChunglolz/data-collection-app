@@ -1,9 +1,11 @@
 # Assessment
 
 ## Overview
+
 APIs for operations between data collections and data files.
 
 ## Requirements
+
 1. Data File
     * Contains input information from users
     * Classified by type of data (3 types: 1, 2, or 3)
@@ -42,12 +44,13 @@ APIs for operations between data collections and data files.
 4. Delete Data Collection (soft delete)
     * DELETE /data-collections/{id}
     * Response: Success message (Data Collection marked as deleted)
-5. List Data Collections
-    * GET /data-collections
-    * Query parameters: filter and sort by any attribute (e.g., date created, note)
+5. Query Data Collections
+    * Post /data-collections/query
+    * Request body: filter and sort by any attribute (e.g., date created, note)
     * Response: List of Data Collection objects with filtering and sorting applied
 
 ## How To Run?
+
 - First Step - Go to root project folder
 
     ```
@@ -62,10 +65,9 @@ APIs for operations between data collections and data files.
     docker-compose up --build
     ```
 
-- Second Step - Run Java
+- Third Step - Run Java
 
-    Back to root folder
+  Back to root folder
     ```
-    cd ..
     ./gradlew bootRun
     ```

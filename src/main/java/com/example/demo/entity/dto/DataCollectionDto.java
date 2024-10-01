@@ -1,5 +1,7 @@
 package com.example.demo.entity.dto;
 
+import com.example.demo.entity.po.DataCollectionStatus;
+import com.example.demo.entity.po.DataFile;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,10 +10,10 @@ import lombok.Getter;
 public class DataCollectionDto {
 
   private int id;
-  private int ordersFileId;
-  private int assetsFileId;
-  private int inventoryFileId;
-  private String status;
+  private DataFileDto ordersFile;
+  private DataFileDto assetsFile;
+  private DataFileDto inventoryFile;
+  private DataCollectionStatus status;
   private String tag;
   private String note;
 }

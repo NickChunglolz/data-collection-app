@@ -17,7 +17,7 @@ public class DataCollection {
   private int ordersFileId;
   private int assetsFileId;
   private int inventoryFileId;
-  private String status;
+  private DataCollectionStatus status;
   private String tag;
   private String note;
 
@@ -27,10 +27,14 @@ public class DataCollection {
     this.ordersFileId = ordersFileId;
     this.assetsFileId = assetsFileId;
     this.inventoryFileId = inventoryFileId;
-    this.status = DataCollectionStatus.ACTIVATED.toString();
+    this.status = DataCollectionStatus.ACTIVATED;
     this.tag = tag;
     this.note = note;
 
     return this;
+  }
+
+  public void deactivate() {
+    this.status = DataCollectionStatus.DEACTIVATED;
   }
 }

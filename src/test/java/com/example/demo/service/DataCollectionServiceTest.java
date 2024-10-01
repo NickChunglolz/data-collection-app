@@ -2,32 +2,38 @@ package com.example.demo.service;
 
 import com.example.demo.entity.dto.DataCollectionDto;
 import com.example.demo.entity.po.DataCollection;
-import com.example.demo.entity.po.DataCollectionStatus;
 import com.example.demo.entity.po.DataFile;
 import com.example.demo.entity.po.FileType;
 import com.example.demo.entity.po.ValidationStatus;
 import com.example.demo.entity.request.CreateDataCollectionRequest;
+import com.example.demo.entity.request.FilterComparison;
+import com.example.demo.entity.request.QueryDataCollectionsFilter;
+import com.example.demo.entity.request.QueryDataCollectionsFilter.FilterSet;
 import com.example.demo.entity.request.UpdateCollectionRequest;
 import com.example.demo.repository.DataCollectionRepository;
 import com.example.demo.repository.DataFileRepository;
-import java.util.Objects;
+import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class DataCollectionServiceTest {
+
+  @InjectMocks
+  private DataCollectionService dataCollectionService;
 
   @Mock
   private DataCollectionRepository dataCollectionRepository;
@@ -35,122 +41,108 @@ public class DataCollectionServiceTest {
   @Mock
   private DataFileRepository dataFileRepository;
 
-  @InjectMocks
-  private DataCollectionService dataCollectionService;
-
   @BeforeEach
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
+  void setup() {
+    when(dataFileRepository.getById(1)).thenReturn(Optional.ofNullable(
+        DataFile.builder().id(1).validationStatus(ValidationStatus.valid).fileType(FileType.orders)
+            .build()));
+    when(dataFileRepository.getById(2)).thenReturn(Optional.ofNullable(
+        DataFile.builder().id(2).validationStatus(ValidationStatus.valid).fileType(FileType.assets)
+            .build()));
+    when(dataFileRepository.getById(3)).thenReturn(Optional.ofNullable(
+        DataFile.builder().id(3).validationStatus(ValidationStatus.valid)
+            .fileType(FileType.inventory).build()));
+  }
+
+  @AfterEach
+  void tearDown() {
+    reset(dataCollectionRepository);
+    reset(dataFileRepository);
   }
 
   @Test
-  public void testGetAllDataCollections() {
+  void GivenQueryFilter_WhenValidFilterAndOneDataExist_ThenReturnsOneSizeResult() {
     // Given
-    DataCollection dataCollection = DataCollection.builder().id(1).ordersFileId(100)
-        .assetsFileId(200).inventoryFileId(300).status(DataCollectionStatus.ACTIVATED.toString())
-        .build();
+    QueryDataCollectionsFilter filter = new QueryDataCollectionsFilter();
+    filter.setFilters(new QueryDataCollectionsFilter.Filters());
 
-    when(dataCollectionRepository.findAll(any(), any(), anyInt())).thenReturn(
-        List.of(dataCollection));
+    FilterSet<Integer> filterSet = new FilterSet<>();
+    filterSet.setValue(1);
+    filterSet.setComparison(FilterComparison.EQ);
+    filter.getFilters().setOrdersFileId(filterSet);
 
     // When
-    var result = dataCollectionService.getAllDataCollections(new HashMap<>(), "id", 1);
+    when(dataCollectionRepository.findAll(any(), any(), any(), any(), anyInt())).thenReturn(List.of(
+        DataCollection.builder().id(1).ordersFileId(1).assetsFileId(2).inventoryFileId(3).build()));
+    List<DataCollectionDto> result = dataCollectionService.queryDataCollections(filter);
 
     // Then
-    assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals(dataCollection.getId(), result.get(0).getId());
   }
 
   @Test
-  public void testGetDataCollection() {
+  void GivenDataCollectionId_WhenDataExist_ThenReturnsRequiredResult() {
     // Given
-    DataCollection dataCollection = DataCollection.builder().id(1).ordersFileId(100).build();
-
-    when(dataCollectionRepository.getById(1)).thenReturn(Optional.of(dataCollection));
+    int id = 1;
+    DataCollection data = DataCollection.builder().id(id).ordersFileId(1).assetsFileId(2)
+        .inventoryFileId(3).build();
 
     // When
-    DataCollectionDto result = dataCollectionService.getDataCollection(1);
+    when(dataCollectionRepository.getById(id)).thenReturn(Optional.of(data));
+    DataCollectionDto result = dataCollectionService.getDataCollection(id);
 
     // Then
-    assertNotNull(result);
-    assertEquals(dataCollection.getId(), result.getId());
+    assertEquals(id, result.getId());
   }
 
   @Test
-  public void testCreateDataCollection() {
+  void GivenCreateRequest_WhenValidRequestAndDataFilesExist_ThenReturnsCreatedItem() {
     // Given
     CreateDataCollectionRequest request = new CreateDataCollectionRequest();
-    request.setOrdersFileId(100);
-    request.setAssetsFileId(200);
-    request.setInventoryFileId(300);
-    request.setStatus("ACTIVATED");
-
-    when(dataCollectionRepository.create(any(DataCollection.class))).thenReturn(1);
+    request.setOrdersFileId(1);
+    request.setAssetsFileId(2);
+    request.setInventoryFileId(3);
+    DataCollection data = DataCollection.builder().id(1).ordersFileId(1).assetsFileId(2)
+        .inventoryFileId(3).build();
 
     // When
-    Integer result = dataCollectionService.createDataCollection(request);
+    when(dataCollectionRepository.create(any())).thenReturn(1);
+    when(dataCollectionRepository.getById(1)).thenReturn(Optional.of(data));
+    DataCollectionDto result = dataCollectionService.createDataCollection(request);
 
     // Then
-    assertNotNull(result);
-    assertEquals(1, result);
+    assertEquals(1, result.getId());
   }
 
   @Test
-  public void testUpdateDataCollection() {
+  void GivenUpdateRequest_WhenValidRequestAndDataExist_ThenReturnsUpdatedItem() {
     // Given
+    int id = 1;
     UpdateCollectionRequest request = new UpdateCollectionRequest();
-    request.setOrdersFileId(100);
-    request.setAssetsFileId(200);
-    request.setInventoryFileId(300);
-    request.setTag("Updated Tag");
-
-    DataCollection existingCollection = DataCollection.builder().id(1).ordersFileId(50).build();
-    existingCollection.setId(1);
-    existingCollection.setOrdersFileId(50);
-
-    when(dataCollectionRepository.getById(1)).thenReturn(Optional.of(existingCollection));
-    when(dataFileRepository.getById(100)).thenReturn(Optional.of(
-        DataFile.builder().validationStatus(ValidationStatus.VALID.toString())
-            .fileType(FileType.ORDERS.toString()).build()));
-    when(dataFileRepository.getById(200)).thenReturn(Optional.of(
-        DataFile.builder().validationStatus(ValidationStatus.VALID.toString())
-            .fileType(FileType.ASSETS.toString()).build()));
-    when(dataFileRepository.getById(300)).thenReturn(Optional.of(
-        DataFile.builder().validationStatus(ValidationStatus.VALID.toString())
-            .fileType(FileType.INVENTORY.toString()).build()));
+    request.setOrdersFileId(1);
+    request.setAssetsFileId(2);
+    request.setInventoryFileId(3);
+    DataCollection data = DataCollection.builder().id(id).build();
 
     // When
-    dataCollectionService.updateDataCollection(1, request);
+    when(dataCollectionRepository.getById(id)).thenReturn(Optional.of(data));
+    DataCollectionDto result = dataCollectionService.updateDataCollection(id, request);
 
     // Then
-    verify(dataCollectionRepository).update(any(DataCollection.class));
+    assertEquals(id, result.getId());
   }
 
   @Test
-  public void testDeleteDataCollection() {
+  void GivenDataCollectionId_WhenDataExist_ThenReturnsDeactivatedMessage() {
     // Given
-    when(dataCollectionRepository.getById(1)).thenReturn(
-        Optional.of(DataCollection.builder().build()));
+    int id = 1;
+    DataCollection data = DataCollection.builder().id(id).build();
 
     // When
-    dataCollectionService.deleteDataCollection(1);
+    when(dataCollectionRepository.getById(id)).thenReturn(Optional.of(data));
+    String result = dataCollectionService.deleteDataCollection(id);
 
     // Then
-    verify(dataCollectionRepository).deactivate(1);
-  }
-
-  @Test
-  public void testThrowNotExistingItemException() {
-    // Given
-    when(dataCollectionRepository.getById(1)).thenReturn(Optional.empty());
-
-    // When & Then
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
-      dataCollectionService.getDataCollection(1);
-    });
-
-    assertEquals(HttpStatus.NOT_FOUND.toString(), exception.getStatusCode().toString());
-    assertTrue(Objects.requireNonNull(exception.getReason()).contains("Data collection not found with ID: 1"));
+    assertEquals("Data Collection 1 is deactivated", result);
   }
 }

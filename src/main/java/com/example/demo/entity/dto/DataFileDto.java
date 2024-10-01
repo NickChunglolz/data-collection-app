@@ -1,5 +1,7 @@
 package com.example.demo.entity.dto;
 
+import com.example.demo.entity.po.FileType;
+import com.example.demo.entity.po.ValidationStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,6 +10,6 @@ import lombok.Getter;
 public class DataFileDto {
 
   private int id;
-  private String fileType;
-  private String validationStatus;
+  private FileType fileType;
+  private ValidationStatus validationStatus;
 }

@@ -14,6 +14,6 @@ public class DataFile {
   private Integer id;
   private Timestamp createdOn;
   private Timestamp updatedOn;
-  private String fileType;
-  private String validationStatus;
+  private FileType fileType;
+  private ValidationStatus validationStatus;
 }
