@@ -8,8 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface DataFileRepository {
-
-  List<DataFile> findAll();
-
+  
   Optional<DataFile> getById(int id);
 }
