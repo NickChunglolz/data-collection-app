@@ -65,10 +65,9 @@ APIs for operations between data collections and data files.
     docker-compose up --build
     ```
 
-- Second Step - Run Java
+- Third Step - Run Java
 
   Back to root folder
     ```
-    cd ..
     ./gradlew bootRun
     ```
