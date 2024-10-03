@@ -1,5 +1,6 @@
 package com.example.demo.entity.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,9 +8,12 @@ import lombok.Setter;
 @Setter
 public class UpdateCollectionRequest {
 
-  private int ordersFileId;
-  private int assetsFileId;
-  private int inventoryFileId;
+  @NotNull(message = "ordersFileId should not be NULL.")
+  private Integer ordersFileId;
+  @NotNull(message = "assetsFileId should not be NULL.")
+  private Integer assetsFileId;
+  @NotNull(message = "inventoryFileId should not be NULL.")
+  private Integer inventoryFileId;
   private String status;
   private String tag;
   private String note;

@@ -6,6 +6,7 @@ import com.example.demo.entity.po.ValidationStatus;
 import com.example.demo.repository.DataFileRepository;
 
 import java.util.Optional;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -28,8 +29,12 @@ public class DataFileRepositoryImpl implements DataFileRepository {
 
   @Override
   public Optional<DataFile> getById(int id) {
-    DataFile dataFile = jdbcTemplate.queryForObject(GET_BY_ID_SQL, dataFileRowMapper, id);
-    return Optional.ofNullable(dataFile);
+    try {
+      DataFile dataFile = jdbcTemplate.queryForObject(GET_BY_ID_SQL, dataFileRowMapper, id);
+      return Optional.ofNullable(dataFile);
+    } catch (EmptyResultDataAccessException e) {
+      return Optional.empty();
+    }
   }
 
   private static final RowMapper<DataFile> dataFileRowMapper = (resultSet, rowNum) -> DataFile.builder()

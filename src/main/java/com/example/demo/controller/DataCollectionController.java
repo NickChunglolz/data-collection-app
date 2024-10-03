@@ -5,6 +5,7 @@ import com.example.demo.entity.dto.DataCollectionDto;
 import com.example.demo.entity.request.QueryDataCollectionsFilter;
 import com.example.demo.entity.request.UpdateCollectionRequest;
 import com.example.demo.service.DataCollectionService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class DataCollectionController {
 
   @PostMapping(path = "/query")
   public ResponseEntity<List<DataCollectionDto>> queryDataCollections(
-      @RequestBody QueryDataCollectionsFilter filter) {
+      @RequestBody @Valid QueryDataCollectionsFilter filter) {
     return ResponseEntity.ok().body(dataCollectionService.queryDataCollections(filter));
   }
 
@@ -37,13 +38,13 @@ public class DataCollectionController {
 
   @PostMapping
   public ResponseEntity<DataCollectionDto> createDataCollection(
-      @RequestBody CreateDataCollectionRequest request) {
+      @RequestBody @Valid CreateDataCollectionRequest request) {
     return ResponseEntity.ok().body(dataCollectionService.createDataCollection(request));
   }
 
   @PutMapping(path = "/{id}")
   public ResponseEntity<DataCollectionDto> updateDataCollection(@PathVariable("id") int id,
-      @RequestBody UpdateCollectionRequest request) {
+      @RequestBody @Valid UpdateCollectionRequest request) {
 
     return ResponseEntity.ok().body(dataCollectionService.updateDataCollection(id, request));
   }
