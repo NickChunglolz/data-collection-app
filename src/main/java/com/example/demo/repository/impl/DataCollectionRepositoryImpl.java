@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Map;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.util.Pair;
 
 import java.sql.PreparedStatement;
@@ -59,10 +60,13 @@ public class DataCollectionRepositoryImpl implements DataCollectionRepository {
 
   @Override
   public Optional<DataCollection> getById(int id) {
-    DataCollection dataCollection = jdbcTemplate.queryForObject(GET_BY_ID_SQL,
-        dataCollectionRowMapper, id);
-
-    return Optional.ofNullable(dataCollection);
+    try {
+      DataCollection dataCollection = jdbcTemplate.queryForObject(GET_BY_ID_SQL,
+          dataCollectionRowMapper, id);
+      return Optional.ofNullable(dataCollection);
+    } catch (EmptyResultDataAccessException e) {
+      return Optional.empty();
+    }
   }
 
   @Override

@@ -30,7 +30,7 @@ public class QueryDataCollectionsFilter {
   @Setter
   public static class FilterSet<T> {
 
-    private FilterComparison comparison;
+    private FilterComparison comparison = FilterComparison.EQ;
     private T value;
   }
 }
