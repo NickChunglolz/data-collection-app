@@ -94,14 +94,16 @@ public class DataCollectionService {
     DataFile inventoryFile = dataFileRepository.getById(data.getInventoryFileId())
         .orElseThrow(throwNotExistingFileException(data.getInventoryFileId()));
 
-    return DataCollectionDto.builder().id(data.getId()).ordersFile(map(ordersFile))
-        .assetsFile(map(assetsFile)).inventoryFile(map(inventoryFile)).status(data.getStatus())
-        .tag(data.getTag()).note(data.getNote()).build();
+    return DataCollectionDto.builder().id(data.getId()).createdOn(data.getCreatedOn())
+        .updatedOn(data.getUpdatedOn()).ordersFile(map(ordersFile)).assetsFile(map(assetsFile))
+        .inventoryFile(map(inventoryFile)).status(data.getStatus()).tag(data.getTag())
+        .note(data.getNote()).build();
   }
 
-  private DataFileDto map(DataFile file) {
-    return DataFileDto.builder().id(file.getId()).fileType(file.getFileType())
-        .validationStatus(file.getValidationStatus()).build();
+  private DataFileDto map(DataFile data) {
+    return DataFileDto.builder().id(data.getId()).createdOn(data.getCreatedOn())
+        .updatedOn(data.getUpdatedOn()).fileType(data.getFileType())
+        .validationStatus(data.getValidationStatus()).build();
   }
 
   private DataCollection map(CreateDataCollectionRequest request) {
