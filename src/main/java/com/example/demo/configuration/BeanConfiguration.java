@@ -2,20 +2,20 @@ package com.example.demo.configuration;
 
 import com.example.demo.repository.impl.DataCollectionRepositoryImpl;
 import com.example.demo.repository.impl.DataFileRepositoryImpl;
-import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 public class BeanConfiguration {
 
   @Bean
-  public DataCollectionRepositoryImpl dataCollectionRepositoryImpl(DataSource dataSource) {
-    return new DataCollectionRepositoryImpl(dataSource);
+  public DataCollectionRepositoryImpl dataCollectionRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    return new DataCollectionRepositoryImpl(jdbcTemplate);
   }
 
   @Bean
-  public DataFileRepositoryImpl dataFileRepositoryImpl(DataSource dataSource) {
-    return new DataFileRepositoryImpl(dataSource);
+  public DataFileRepositoryImpl dataFileRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    return new DataFileRepositoryImpl(jdbcTemplate);
   }
 }
